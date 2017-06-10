@@ -83,28 +83,27 @@ for entry in all:
     cur.execute('SELECT id FROM Artist WHERE name = ? ', (artist, ))
     artist_id = cur.fetchone()[0]
     
-    cur.execute('''INSERT OR IGNORE INTO Album (title, artist_id) 
-        VALUES ( ?, ? )''', ( album, artist_id ) )
-    cur.execute('SELECT id FROM Album WHERE title = ? ', (album, ))
-    album_id = cur.fetchone()[0]
-
     cur.execute('''INSERT OR IGNORE INTO Genre (name)
         VALUES ( ? )''', ( genre, ))
     cur.execute('SELECT id FROM Genre WHERE name = ? ', (genre, ))
     genre_id = cur.fetchone()[0]
     
+    cur.execute('''INSERT OR IGNORE INTO Album (title, artist_id) 
+        VALUES ( ?, ? )''', ( album, artist_id ) )
+    cur.execute('SELECT id FROM Album WHERE title = ? ', (album, ))
+    album_id = cur.fetchone()[0]
+
+    
     cur.execute('''INSERT OR REPLACE INTO Track
-        (title, album_id, len, rating, count) 
-        VALUES ( ?, ?, ?, ?, ? )''', 
-        ( name, album_id, length, rating, count ) )
+        (title, album_id, genre_id, len, rating, count) 
+        VALUES ( ?, ?, ?, ?, ?, ? )''', 
+        ( name, album_id, genre_id, length, rating, count ) )
     
+    conn.commit()    
     
-    """
-    cur.execute('''
-        SELECT Track.title, Artist.name, Album.title, Genre.name
-            FROM Track JOIN Genre JOIN Album JOIN Artist
-            ON Track.genre_id = Genre.ID and Track.album_id = Album.id
-                AND Album.artist_id = Artist.id
-            ORDER BY Artist.name LIMIT 3''')
-    """
-    conn.commit()
+conn.execute('''SELECT Track.title, Artist.name, Album.title, Genre.name
+    FROM Track JOIN Genre JOIN Album JOIN Artist
+    ON Track.genre_id = Genre.ID and Track.album_id = Album.id
+        AND Album.artist_id = Artist.id
+    ORDER BY Artist.name LIMIT 3''')
+    
